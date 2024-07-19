@@ -22,9 +22,10 @@ dataset
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from tqdm import tqdm
 
 # %%
-df = pd.DataFrame(columns=['split', 'hyp-prmpt', 'hyp-clean', 'ref'])
+df = pd.DataFrame()
 
 # %% [markdown]
 # # Infering Original Whisper with HF Dataset
@@ -39,31 +40,35 @@ nato = "alpha,bravo,charlie,delta,echo,foxtrot,golf,hotel,india,juliett,kilo,lim
 terminology = "climb, climbing, descend, descending, passing, feet, knots, degrees, direct, maintain, identified, ILS, VFR, IFR, contact, frequency, turn, right, left, heading, altitude, flight, level, cleared, squawk, approach, runway, established, report, affirm, negative, wilco, roger, radio, radar"
 
 for s in spl.split('+'):
-    for i in range(len(dataset[s])):
+    for i in tqdm(range(len(dataset[s]))):
         audio = dataset[s][i]['audio']['array']
         audio = whisper.pad_or_trim(audio)
 
-        if wsp == 'large-v3':
-            mel = whisper.log_mel_spectrogram(np.float32(audio), n_mels=128).to(model.device)
-        else:
-            mel = whisper.log_mel_spectrogram(np.float32(audio)).to(model.device)
-        
         try:
             prompt = 'Air Traffic Control Communications ' + dataset[s][i]['info'].replace('\n', ' ') + ' ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
 
         except:
             inf = ''
             prompt = 'Air Traffic Control Communications ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
-            
-        options = whisper.DecodingOptions(language='en', prompt=prompt, fp16=False)
-        res_prmpt = whisper.decode(model, mel, options=options)
-        options = whisper.DecodingOptions(language='en', fp16=False)
-        res_clean = whisper.decode(model, mel, options=options)
-        
-        df.loc[len(df.index)] = [s, res_prmpt.text, res_clean.text, dataset[s][i]['text']]
-        
-        print(s, str(int(i/len(dataset[s])*100))+'%', end='\r')
-df.to_excel(dts.split('/')[-1]+'-'+spl+'-'+mdl.split('/')[-1]+'-'+datetime.today().strftime('%Y-%m-%d--%H:%M:%S')+'.xlsx')        
+
+        options = dict(language='en', prompt=prompt, fp16=False, word_timestamps=True)
+        res_prmpt = whisper.transcribe(model, audio, **options)
+
+        options = dict(language='en', fp16=False, word_timestamps=True)
+        res_clean = whisper.transcribe(model, audio, **options)
+
+        series = pd.Series({
+            'split': s,
+            'hyp-prmpt': res_prmpt['text'],
+            'hyp-clean': res_clean['text'],
+            'ref': dataset[s][i]['text'],
+            'words-prmpt': res_prmpt['segments'],
+            'words-clean': res_clean['segments'],
+        })
+
+
+        df = pd.concat((df, series.to_frame().T), ignore_index=True)
+df.to_pickle(dts.split('/')[-1]+'-'+spl+'-'+mdl.split('/')[-1]+'-'+datetime.today().strftime('%Y-%m-%d--%H:%M:%S')+'.pickle')
 
 # %%
 df
