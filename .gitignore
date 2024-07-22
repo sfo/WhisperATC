@@ -20,6 +20,7 @@ ATCOSIM/
 ATCO2-AST-ATCOSIM/
 7z/
 slurm*
+*.pickle
 
 # Graphs
 Graphs/*
