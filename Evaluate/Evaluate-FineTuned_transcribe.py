@@ -22,9 +22,10 @@ dataset
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from tqdm import tqdm
 
 # %%
-df = pd.DataFrame(columns=['split', 'hyp-prmpt', 'hyp-clean', 'ref'])
+df = pd.DataFrame()
 
 # %% [markdown]
 # # Infering Original Whisper with HF Dataset
@@ -82,85 +83,31 @@ for s in spl.split('+'):
     print(' ')
     for i in range(len(dataset[s])):
         audio = dataset[s][i]['audio']['array']
-        audio = whisper.pad_or_trim(audio)
-        if wsp == 'large-v3':
-            mel = whisper.log_mel_spectrogram(np.float32(audio), n_mels=128).to(model.device)
-        else:
-            mel = whisper.log_mel_spectrogram(np.float32(audio)).to(model.device)
-        
+        audio = np.float32(whisper.pad_or_trim(audio))
+
         try:
             prompt = 'Air Traffic Control Communications ' + dataset[s][i]['info'].replace('\n', ' ') + ' ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
-
         except:
             inf = ''
             prompt = 'Air Traffic Control Communications ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
             
-        options = whisper.DecodingOptions(language='en', prompt=prompt, fp16=False)
-        res_prmpt = whisper.decode(model, mel, options=options)
-        options = whisper.DecodingOptions(language='en', fp16=False)
-        res_clean = whisper.decode(model, mel, options=options)
+        options = dict(language='en', prompt=prompt, fp16=False, word_timestamps=True)
+        res_prmpt = whisper.transcribe(model, mel, **options)
+        options = dict(language='en', fp16=False, word_timestamps=True)
+        res_clean = whisper.transcribe(model, mel, **options)
         
-        df.loc[len(df.index)] = [s, res_prmpt.text, res_clean.text, dataset[s][i]['text']]
-        
-        print(s, str(int(i/len(dataset[s])*100))+'%', end='\r')
-df.to_excel(dts.split('/')[-1]+'-'+spl+'-'+mdl.split('/')[-1]+'-'+datetime.today().strftime('%Y-%m-%d--%H:%M:%S')+'.xlsx')        
+        series = pd.Series({
+            'split': s,
+            'hyp-prmpt': res_prmpt['text'],
+            'hyp-clean': res_clean['text'],
+            'ref': dataset[s][i]['text'],
+            'words-prmpt': res_prmpt['segments'],
+            'words-clean': res_clean['segments'],
+        })
+        df = pd.concat((df, series.to_frame().T), ignore_index=True)
+
+df.to_pickle(dts.split('/')[-1]+'-'+spl+'-'+mdl.split('/')[-1]+'-'+datetime.today().strftime('%Y-%m-%d--%H:%M:%S')+'.pickle')
 
 # %%
 df
 
-# %% [markdown]
-# # Normalization
-
-# %%
-from Normalizer import filterAndNormalize
-
-# %%
-df['ref-norm'] = df.apply(lambda x: filterAndNormalize(x['ref']), axis=1)
-df['hyp-clean-norm'] = df.apply(lambda x: filterAndNormalize(x['hyp-clean']), axis=1)
-df['hyp-prmpt-norm'] = df.apply(lambda x: filterAndNormalize(x['hyp-prmpt']), axis=1)
-
-# %%
-df.head()
-
-# %% [markdown]
-# # WER Calculation
-
-# %%
-import jiwer
-
-# %%
-def calcWER(df, spl):
-    dff = df.loc[df['split'].isin(spl.split('+'))]
-    wer_cln = jiwer.wer(list(dff['ref']), list(dff['hyp-clean']))
-    wer_prm = jiwer.wer(list(dff['ref']), list(dff['hyp-prmpt']))
-    wer_cln_nrm = jiwer.wer(list(dff['ref-norm']), list(dff['hyp-clean-norm']))
-    wer_prm_nrm = jiwer.wer(list(dff['ref-norm']), list(dff['hyp-prmpt-norm']))
-
-    print('clean        : {} %'.format(round(wer_cln*100,4)))
-    print('prmpt        : {} %'.format(round(wer_prm*100,4)))
-    print('clean-norm   : {} %'.format(round(wer_cln_nrm*100,4)))
-    print('prmpt-norm   : {} %'.format(round(wer_prm_nrm*100,4)))
-
-# %%
-# Split Train+Validation
-spl = 'train+validation'
-wsp = '-'.join(mdl.split('-')[1:])
-
-print('Dataset: ', dts)
-print('Model  : ', mdl)
-print('Split  : ', spl)
-print('Whisper: ', wsp)
-
-calcWER(df, spl)
-
-# %%
-# Split Validation
-spl = 'validation'
-wsp = '-'.join(mdl.split('-')[1:])
-
-print('Dataset: ', dts)
-print('Model  : ', mdl)
-print('Split  : ', spl)
-print('Whisper: ', wsp)
-
-calcWER(df, spl)

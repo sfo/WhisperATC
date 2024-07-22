@@ -46,7 +46,6 @@ for s in spl.split('+'):
 
         try:
             prompt = 'Air Traffic Control Communications ' + dataset[s][i]['info'].replace('\n', ' ') + ' ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
-
         except:
             inf = ''
             prompt = 'Air Traffic Control Communications ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
@@ -65,9 +64,8 @@ for s in spl.split('+'):
             'words-prmpt': res_prmpt['segments'],
             'words-clean': res_clean['segments'],
         })
-
-
         df = pd.concat((df, series.to_frame().T), ignore_index=True)
+
 df.to_pickle(dts.split('/')[-1]+'-'+spl+'-'+mdl.split('/')[-1]+'-'+datetime.today().strftime('%Y-%m-%d--%H:%M:%S')+'.pickle')
 
 # %%
