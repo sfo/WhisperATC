@@ -42,7 +42,7 @@ terminology = "climb, climbing, descend, descending, passing, feet, knots, degre
 for s in spl.split('+'):
     for i in tqdm(range(len(dataset[s]))):
         audio = dataset[s][i]['audio']['array']
-        audio = whisper.pad_or_trim(audio)
+        audio = np.float32(whisper.pad_or_trim(audio))
 
         try:
             prompt = 'Air Traffic Control Communications ' + dataset[s][i]['info'].replace('\n', ' ') + ' ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
