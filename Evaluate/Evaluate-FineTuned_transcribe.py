@@ -35,6 +35,7 @@ import re
 import whisper
 import torch
 import os
+from safetensors.torch import load_file
 
 def hf_to_whisper_states(text):
     text = re.sub('.layers.', '.blocks.', text)
@@ -63,7 +64,7 @@ if not os.path.exists(mdl.split('/')[-1]):
 else:
     os.system('cd '+mdl.split('/')[-1]+' && git pull')
     os.system('cd '+mdl.split('/')[-1]+' && git lfs pull')
-hf_state_dict = torch.load('./'+mdl.split('/')[-1]+'/pytorch_model.bin')    # pytorch_model.bin file
+hf_state_dict = load_file('./'+mdl.split('/')[-1]+'/model.safetensors', device="cpu")
 
 # Rename layers
 for key in list(hf_state_dict.keys())[:]:
