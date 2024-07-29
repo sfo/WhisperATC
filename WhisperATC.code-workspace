@@ -12,7 +12,8 @@
 		"flake8.args": [
 			"--max-line-length=80",
 			"--select=C,E,F,W,B,B950",
-			"--extend-ignore=E501,E203,W503"
+			"--extend-ignore=E501,E203,W503",
+			"--extend-ignore=E402",
 		],
 		"isort.args": [
 			"--profile=black"
@@ -23,6 +24,12 @@
 			"reportMissingSuperCall": "error",
 			"reportReturnType": "error"
 		},
-		"python.analysis.typeCheckingMode": "basic"
+		"python.analysis.typeCheckingMode": "basic",
+		"search.exclude": {
+			"**/whisper-large-*": true,
+		},
+		"files.exclude": {
+			"**/whisper-large-*": true,
+		}
 	}
 }
