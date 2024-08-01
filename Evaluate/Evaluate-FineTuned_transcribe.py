@@ -80,9 +80,9 @@ print('Starting inference...')
 nato = "alpha,bravo,charlie,delta,echo,foxtrot,golf,hotel,india,juliett,kilo,lima,mike,november,oscar,papa,quebec,romeo,sierra,tango,uniform,victor,whiskey,xray,yankee,zulu"
 terminology = "climb, climbing, descend, descending, passing, feet, knots, degrees, direct, maintain, identified, ILS, VFR, IFR, contact, frequency, turn, right, left, heading, altitude, flight, level, cleared, squawk, approach, runway, established, report, affirm, negative, wilco, roger, radio, radar"
 
-for s in spl.split('+'):
+for s in tqdm(spl.split('+')):
     print(' ')
-    for i in range(len(dataset[s])):
+    for i in tqdm(range(len(dataset[s]))):
         audio = dataset[s][i]['audio']['array']
         audio = np.float32(whisper.pad_or_trim(audio))
 
