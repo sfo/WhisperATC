@@ -93,9 +93,9 @@ for s in spl.split('+'):
             prompt = 'Air Traffic Control Communications ' + nato.replace(',',' ') + ' ' + terminology.replace(',',' ')
             
         options = dict(language='en', prompt=prompt, fp16=False, word_timestamps=True)
-        res_prmpt = whisper.transcribe(model, mel, **options)
+        res_prmpt = whisper.transcribe(model, audio, **options)
         options = dict(language='en', fp16=False, word_timestamps=True)
-        res_clean = whisper.transcribe(model, mel, **options)
+        res_clean = whisper.transcribe(model, audio, **options)
         
         series = pd.Series({
             'split': s,
