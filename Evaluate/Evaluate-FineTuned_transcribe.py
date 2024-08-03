@@ -5,7 +5,7 @@
 dts = 'jlvdoorn/atco2-asr'
 mdl = 'jlvdoorn/whisper-large-v3-atco2-asr'
 spl = 'train+validation'
-wsp = '-'.join(mdl.split('-')[1:])
+wsp = '-'.join(mdl.split('-')[1:3])
 
 print('Dataset: ', dts)
 print('Model  : ', mdl)
@@ -38,6 +38,9 @@ import os
 from safetensors.torch import load_file
 
 def hf_to_whisper_states(text):
+    """
+    source: https://github.com/openai/whisper/discussions/830#discussioncomment-10026678
+    """
     text = re.sub('.layers.', '.blocks.', text)
     text = re.sub('.self_attn.', '.attn.', text)
     text = re.sub('.q_proj.', '.query.', text)
@@ -57,6 +60,7 @@ def hf_to_whisper_states(text):
     text = re.sub('.final_layer_norm.', '.mlp_ln.', text)
     text = re.sub('encoder.layer_norm.', 'encoder.ln_post.', text)
     text = re.sub('decoder.layer_norm.', 'decoder.ln.', text)
+    text = re.sub('proj_out.weight', 'decoder.token_embedding.weight', text)
     return text
 
 if not os.path.exists(mdl.split('/')[-1]):
@@ -72,7 +76,7 @@ for key in list(hf_state_dict.keys())[:]:
     hf_state_dict[new_key] = hf_state_dict.pop(key)
 
 # Init Whisper Model and replace model weights
-model = whisper.load_model('large-v2')
+model = whisper.load_model(wsp)
 model.load_state_dict(hf_state_dict)
 
 # %%
