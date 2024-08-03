@@ -1,5 +1,6 @@
 # Fine-Tuned Models
 whisper-large-v2*/
+whisper-large-v3*/
 *.csv
 slurm-*.out
 *.pdf
