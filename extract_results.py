@@ -9,7 +9,7 @@ from tqdm import tqdm
 from Evaluate.Normalizer import filterAndNormalize
 
 # %%
-model_variant = "atco2-asr-atcosim"
+model_variant = "atcosim"
 dts = f"jlvdoorn/{model_variant}"
 spl = "train+validation"
 wsp = "whisper-large-v3"
@@ -50,10 +50,14 @@ for s_idx, s in tqdm(enumerate(spl.split("+"))):
     ds_prediction = df_prediction.query("split == @s")
 
     for i in tqdm(range(len(ds_prediction))):
+        sample_audio = ds_audio[i]
+        sample_text = ds_prediction.iloc[i]
+        if sample_text['ref-norm'] != sample_text['hyp-clean-norm']:
+            continue
+
         file_name = f"audio_{model_variant}_{s}_{i:04d}"
         # save audio data
-        sample = ds_audio[i]
-        audio = sample["audio"]
+        audio = sample_audio["audio"]
         write(
             audio_folder / f"{file_name}.wav",
             audio["sampling_rate"],
@@ -61,13 +65,12 @@ for s_idx, s in tqdm(enumerate(spl.split("+"))):
         )
 
         # save subtitle data
-        sample = ds_prediction.iloc[i]
         line_counter = 0
         subtitle_file = audio_folder / f"{file_name}.srt"
         label_file = audio_folder / f"{file_name}.txt"
         subtitle_file.unlink(missing_ok=True)
         label_file.unlink(missing_ok=True)
-        for seq in sample["words-clean"]:
+        for seq in sample_text["words-clean"]:
             for word in seq["words"]:
                 start = word["start"]
                 end = word["end"]
@@ -82,3 +85,5 @@ for s_idx, s in tqdm(enumerate(spl.split("+"))):
 
                 with open(label_file, "at") as file:
                     file.write(f"{start}\t{end}\t{subtext}\n")
+
+# %%
