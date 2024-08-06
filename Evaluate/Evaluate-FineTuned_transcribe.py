@@ -64,7 +64,7 @@ def hf_to_whisper_states(text):
     return text
 
 if not os.path.exists(mdl.split('/')[-1]):
-    os.system('git clone git@hf.co:'+mdl)
+    os.system('git clone https://hf.co/'+mdl)
 else:
     os.system('cd '+mdl.split('/')[-1]+' && git pull')
     os.system('cd '+mdl.split('/')[-1]+' && git lfs pull')
