@@ -189,3 +189,6 @@ cython_debug/
 #.idea/ TEST
 Evaluate/test.ipynb
 audio/
+*.wav
+*.txt
+*.srt
