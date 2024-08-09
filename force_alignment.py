@@ -43,6 +43,8 @@ TRANSCRIPT = sample["text"].strip().split()
 tokenized_transcript = [DICTIONARY[c] for word in TRANSCRIPT for c in word]
 
 # %%
+# TODO - check if emission reflect actual transcript and base statistics only on accurate predictions
+# TODO - apply WhisperATC's fine tuning to the wav2vec2 model
 emission = get_emission(waveform, bundle, device)
 plot_emission(emission)
 
