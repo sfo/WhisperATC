@@ -10,7 +10,7 @@
 		},
 		"black-formatter.args": [],
 		"flake8.args": [
-			"--max-line-length=80",
+			"--max-line-length=88",
 			"--select=C,E,F,W,B,B950",
 			"--extend-ignore=E501,E203,W503",
 			"--extend-ignore=E402",
