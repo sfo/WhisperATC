@@ -27,6 +27,7 @@ model_variant = "atcosim"
 dts = f"jlvdoorn/{model_variant}"
 spl = "train"
 ds_audio = load_dataset(dts)[spl]
+sample_index = 2
 
 # %%
 bundle = torchaudio.pipelines.MMS_FA
@@ -34,7 +35,7 @@ LABELS = bundle.get_labels(star=None)
 DICTIONARY = bundle.get_dict(star=None)
 
 
-sample = ds_audio[2]
+sample = ds_audio[sample_index]
 waveform = torch.atleast_2d(
     torch.tensor(sample["audio"]["array"], device=device, dtype=torch.float32)
 )
@@ -62,7 +63,7 @@ with open(audio_file_path.with_suffix(".txt"), "tw") as file:
             [
                 word_to_audacity_label(
                     waveform,
-                    word_spans[i],
+                    [ {'start': ts.start, 'end': ts.end } for ts in word_spans[i] ],
                     num_frames,
                     word,
                     sampling_rate,

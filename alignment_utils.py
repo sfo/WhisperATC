@@ -55,10 +55,16 @@ def seconds_to_timecode(seconds):
     )
 
 
-def word_to_audacity_label(waveform, spans, num_frames, transcript, sample_rate):
+def word_to_audacity_label(
+    waveform,
+    spans: list[dict[str, int]],
+    num_frames: int,
+    transcript: str,
+    sample_rate: int,
+):
     ratio = waveform.size(1) / num_frames
-    start = int(ratio * spans[0].start) / sample_rate
-    end = int(ratio * spans[-1].end) / sample_rate
+    start = int(ratio * spans[0]["start"]) / sample_rate
+    end = int(ratio * spans[-1]["end"]) / sample_rate
     return f"{start:.3f}\t{end:.3f}\t{transcript}"
 
 
