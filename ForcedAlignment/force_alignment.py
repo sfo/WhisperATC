@@ -1,3 +1,12 @@
+# %% [markdown]
+#
+# # Forced Alignment using wav2vec2
+#
+# This script uses a wav2vec2 model to force alignment of existing transcripts to audio.
+# It includes a voice recognition step for generating tokens.
+#
+# Results are OK but not yet usable for running statistical analyses.
+
 # %%
 from pathlib import Path
 
@@ -27,7 +36,7 @@ model_variant = "atcosim"
 dts = f"jlvdoorn/{model_variant}"
 spl = "train"
 ds_audio = load_dataset(dts)[spl]
-sample_index = 2
+sample_index = 69
 
 # %%
 bundle = torchaudio.pipelines.MMS_FA

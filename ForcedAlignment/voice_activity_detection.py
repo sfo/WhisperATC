@@ -1,3 +1,10 @@
+# %% [markdown]
+#
+# # Voice Activity Detection using Silero-VAD model
+#
+# This script intends to implement a VAD step for our pipeline.
+# Removing silence from audio may improve voice regonition and transcript alignment.
+
 # %%
 from pathlib import Path
 
@@ -21,7 +28,9 @@ model_variant = "atcosim"
 dts = f"jlvdoorn/{model_variant}"
 spl = "train"
 ds_audio = load_dataset(dts)[spl]
-sample_index = 42
+
+# %%
+sample_index = 69
 
 sample = ds_audio[sample_index]
 waveform = torch.atleast_2d(
@@ -30,7 +39,16 @@ waveform = torch.atleast_2d(
 sampling_rate = sample["audio"]["sampling_rate"]
 
 # %%
-speech_timestamps = get_speech_timestamps(waveform, model, sampling_rate=sampling_rate)
+speech_timestamps = get_speech_timestamps(
+    waveform,
+    model,
+    sampling_rate=sampling_rate,
+    threshold=0.75,  # default 0.5
+    min_speech_duration_ms=250,  # default 250
+    min_silence_duration_ms=50,  # default 100
+    speech_pad_ms=0,  # default 30
+    visualize_probs=True,
+)
 
 # %%
 audio_file_path = Path(sample["audio"]["path"])
