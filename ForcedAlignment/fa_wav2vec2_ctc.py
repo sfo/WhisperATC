@@ -1,20 +1,17 @@
 # %% [markdown]
 #
-# # Forced Alignment using wav2vec2
+# # CTC Forced Alignment using wav2vec2
+#
+# [Source](https://pytorch.org/audio/main/tutorials/ctc_forced_alignment_api_tutorial.html)
 #
 # This script uses a wav2vec2 model to force alignment of existing transcripts to audio.
 # It includes a voice recognition step for generating tokens.
 #
 # Results are OK but not yet usable for running statistical analyses.
-
+#
 # %%
-from pathlib import Path
-
 import torch
 import torchaudio
-from datasets import load_dataset
-from scipy.io.wavfile import write
-
 from alignment_utils import (
     aggregate_words,
     align_tokens,
@@ -23,6 +20,8 @@ from alignment_utils import (
     plot_emission,
     word_to_audacity_label,
 )
+from audio_utils import AudioDataset
+from scipy.io.wavfile import write
 
 print(torch.__version__)
 print(torchaudio.__version__)
@@ -35,21 +34,18 @@ print(device)
 model_variant = "atcosim"
 dts = f"jlvdoorn/{model_variant}"
 spl = "train"
-ds_audio = load_dataset(dts)[spl]
-sample_index = 69
+ds_audio = AudioDataset(dts, spl, device)
+sample_index = 42
+
+TRANSCRIPT, waveform, sampling_rate, audio_file_path, audio_array = (
+    ds_audio.get_audio_sample(sample_index, waveform2d=True)
+)
+TRANSCRIPT = TRANSCRIPT.split()
 
 # %%
 bundle = torchaudio.pipelines.MMS_FA
 LABELS = bundle.get_labels(star=None)
 DICTIONARY = bundle.get_dict(star=None)
-
-
-sample = ds_audio[sample_index]
-waveform = torch.atleast_2d(
-    torch.tensor(sample["audio"]["array"], device=device, dtype=torch.float32)
-)
-sampling_rate = sample["audio"]["sampling_rate"]
-TRANSCRIPT = sample["text"].strip().split()
 tokenized_transcript = [DICTIONARY[c] for word in TRANSCRIPT for c in word]
 
 # %%
@@ -61,18 +57,16 @@ plot_emission(emission)
 token_spans = align_tokens(emission, tokenized_transcript, device)
 word_spans = aggregate_words(token_spans, TRANSCRIPT)
 
-
 # %%
 num_frames = emission.size(1)
 
-audio_file_path = Path(sample["audio"]["path"])
 with open(audio_file_path.with_suffix(".txt"), "tw") as file:
     file.write(
         "\n".join(
             [
                 word_to_audacity_label(
                     waveform,
-                    [ {'start': ts.start, 'end': ts.end } for ts in word_spans[i] ],
+                    [{"start": ts.start, "end": ts.end} for ts in word_spans[i]],
                     num_frames,
                     word,
                     sampling_rate,
@@ -85,7 +79,7 @@ with open(audio_file_path.with_suffix(".txt"), "tw") as file:
 write(
     audio_file_path,
     sampling_rate,
-    sample["audio"]["array"],
+    audio_array,
 )
 
 
