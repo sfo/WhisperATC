@@ -9,10 +9,8 @@
 from pathlib import Path
 
 import torch
+from alignment_utils import whisper_word_to_audacity_label
 from datasets import load_dataset
-from scipy.io.wavfile import write
-
-from alignment_utils import word_to_audacity_label
 
 # %%
 torch.set_num_threads(1)
@@ -56,7 +54,7 @@ with open(audio_file_path.with_suffix(".vad.txt"), "tw") as file:
     file.write(
         "\n".join(
             [
-                word_to_audacity_label(
+                whisper_word_to_audacity_label(
                     waveform,
                     [{k: v} for k, v in ts.items()],
                     waveform.size(1),
@@ -67,11 +65,5 @@ with open(audio_file_path.with_suffix(".vad.txt"), "tw") as file:
             ]
         )
     )
-
-write(
-    audio_file_path,
-    sampling_rate,
-    sample["audio"]["array"],
-)
 
 # %%

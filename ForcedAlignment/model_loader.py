@@ -1,12 +1,30 @@
 import os
 import re
+from typing import Protocol
 
 import whisper
 from safetensors.torch import load_file
+from torch import device
+from whisper import Whisper
+
+
+class BaseModelLoader(Protocol):
+    def __call__(
+        self,
+        name: str,
+        device: str | device | None = None,
+        download_root: str = None,
+        in_memory: bool = False,
+    ) -> Whisper:
+        ...
 
 
 class ModelLoader:
-    def __init__(self, base_model_loader=whisper.load_model):
+    def __init__(
+        self,
+        base_model_loader: BaseModelLoader = whisper.load_model,
+    ):
+        super().__init__()
         self._base_model_loader = base_model_loader
 
     def _hf_to_whisper_states(self, text):

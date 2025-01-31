@@ -55,7 +55,7 @@ def seconds_to_timecode(seconds):
     )
 
 
-def word_to_audacity_label(
+def whisper_word_to_audacity_label(
     waveform,
     spans: list[dict[str, int]],
     num_frames: int,
@@ -66,6 +66,29 @@ def word_to_audacity_label(
     start = int(ratio * spans[0]["start"]) / sample_rate
     end = int(ratio * spans[-1]["end"]) / sample_rate
     return f"{start:.3f}\t{end:.3f}\t{transcript}"
+
+
+def whisper_transcript_to_audacity_label(
+    word_spans, num_frames, TRANSCRIPT, sampling_rate, file
+):
+    file.write(
+        "\n".join(
+            [
+                whisper_word_to_audacity_label(
+                    [{"start": ts.start, "end": ts.end} for ts in word_spans[i]],
+                    num_frames,
+                    word,
+                    sampling_rate,
+                )
+                for i, word in enumerate(TRANSCRIPT)
+            ]
+        )
+    )
+
+def stable_ts_alignment_to_audacity_label(alignment, file):
+    for segment in alignment.to_dict()["segments"]:
+        for word in segment["words"]:
+            file.write(f"{word['start']}\t{word['end']}\t{word['word'].strip()}\n")
 
 
 def plot_alignments(waveform, token_spans, emission, transcript, sample_rate):

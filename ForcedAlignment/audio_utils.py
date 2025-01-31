@@ -6,8 +6,9 @@ from datasets import load_dataset
 
 
 class AudioDataset:
-    def __init__(self, dts: str, spl: str, device: str):
-        self._ds_audio = load_dataset(dts)[spl]
+    def __init__(self, dts: str, spl: str, device: str | torch.device):
+        super().__init__()
+        self._ds_audio = load_dataset(dts)[spl]  # type: ignore
         self._device = device
 
     def get_audio_sample(self, sample_index: int, waveform2d: bool):
