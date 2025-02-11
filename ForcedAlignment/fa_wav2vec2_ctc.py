@@ -55,27 +55,27 @@ DICTIONARY = bundle.get_dict(star=None)
 
 # %% PREPARE TRANSCRIPT
 # TODO - for testing, use a single sample. Rework into a loop.
-sample_index = 42
-TRANSCRIPT, waveform, sampling_rate, audio_file_name, audio_array = (
-    audio_dataset.get_audio_sample(sample_index, waveform2d=True)
-)
-TRANSCRIPT = TRANSCRIPT.split()
-tokenized_transcript = [DICTIONARY[c] for word in TRANSCRIPT for c in word]
-
-# %% PERFORM ALIGNMENT
-# TODO - check if emission reflect actual transcript and base statistics only on accurate predictions
-# TODO - apply WhisperATC's fine tuning to the wav2vec2 model
-emission = get_emission(waveform, bundle, device)
-token_spans = align_tokens(emission, tokenized_transcript, device)
-word_spans = aggregate_words(token_spans, TRANSCRIPT)
-
-# %% SAVE RESULTS
-audio_dataset.export_audio(sample_index, audio_path)
-
-num_frames = emission.size(1)
-with open(audio_path / audio_file_name.with_suffix(".txt"), "tw") as file:
-    whisper_transcript_to_audacity_label(
-        word_spans, num_frames, TRANSCRIPT, sampling_rate, file
+for sample_index in (1, 2, 3, 26, 42, 100):
+    TRANSCRIPT, waveform, sampling_rate, audio_file_name, _ = (
+        audio_dataset.get_audio_sample(sample_index, waveform2d=True)
     )
+    TRANSCRIPT = TRANSCRIPT.split()
+    tokenized_transcript = [DICTIONARY[c] for word in TRANSCRIPT for c in word]
+
+    ## %% PERFORM ALIGNMENT
+    # TODO - check if emission reflect actual transcript and base statistics only on accurate predictions
+    # TODO - apply WhisperATC's fine tuning to the wav2vec2 model
+    emission = get_emission(waveform, bundle, device)
+    token_spans = align_tokens(emission, tokenized_transcript, device)
+    word_spans = aggregate_words(token_spans, TRANSCRIPT)
+
+    ## %% SAVE RESULTS
+    audio_dataset.export_audio(sample_index, audio_path)
+
+    num_frames = emission.size(1)
+    with open(audio_path / audio_file_name.with_suffix(".w2v2.txt"), "tw") as file:
+        whisper_transcript_to_audacity_label(
+            waveform, word_spans, num_frames, TRANSCRIPT, sampling_rate, file
+        )
 
 # %%

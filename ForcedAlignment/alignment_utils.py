@@ -69,12 +69,13 @@ def whisper_word_to_audacity_label(
 
 
 def whisper_transcript_to_audacity_label(
-    word_spans, num_frames, TRANSCRIPT, sampling_rate, file
+    waveform, word_spans, num_frames, TRANSCRIPT, sampling_rate, file
 ):
     file.write(
         "\n".join(
             [
                 whisper_word_to_audacity_label(
+                    waveform,
                     [{"start": ts.start, "end": ts.end} for ts in word_spans[i]],
                     num_frames,
                     word,
@@ -84,6 +85,7 @@ def whisper_transcript_to_audacity_label(
             ]
         )
     )
+
 
 def stable_ts_alignment_to_audacity_label(alignment, file):
     for segment in alignment.to_dict()["segments"]:
