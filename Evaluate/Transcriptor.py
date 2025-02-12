@@ -16,7 +16,6 @@ def transcribe(model, dts, spl, mdl):
     terminology = "climb, climbing, descend, descending, passing, feet, knots, degrees, direct, maintain, identified, ILS, VFR, IFR, contact, frequency, turn, right, left, heading, altitude, flight, level, cleared, squawk, approach, runway, established, report, affirm, negative, wilco, roger, radio, radar"
 
     for s in tqdm(spl.split("+")):
-        print(" ")
         for i in tqdm(range(len(dataset[s]))):
             audio = dataset[s][i]["audio"]["array"]
             audio = np.float32(whisper.pad_or_trim(audio))
