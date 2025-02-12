@@ -1,6 +1,8 @@
 import os
 import re
+from typing import Union
 
+import torch
 import whisper
 from safetensors.torch import load_file
 
@@ -40,7 +42,11 @@ def _clone_model_repo(mdl) -> None:
         os.system("cd " + mdl.split("/")[-1] + " && git lfs pull")
 
 
-def load_model(whisper_base_model: str, mdl, device: str = "cpu"):
+def load_model(
+    whisper_base_model: str,
+    mdl: str,
+    device: str = "cpu"
+):
     _clone_model_repo(mdl)
 
     hf_state_dict = load_file(
@@ -53,6 +59,6 @@ def load_model(whisper_base_model: str, mdl, device: str = "cpu"):
         hf_state_dict[new_key] = hf_state_dict.pop(key)
 
     # Init Whisper Model and replace model weights
-    model = whisper.load_model(whisper_base_model)
+    model = whisper.load_model(whisper_base_model, device=device)
     model.load_state_dict(hf_state_dict)
     return model
