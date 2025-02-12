@@ -3,9 +3,9 @@ import whisper
 from Transcriptor import transcribe
 
 # %%
-dts = "jlvdoorn/atco2-asr-atcosim"
+dts = "jlvdoorn/atco2-asr"
 mdl = "openai/whisper-large-v3"
-spl = "train+validation"
+spl = "validation"
 wsp = "-".join(mdl.split("-")[1:])
 
 print("Dataset: ", dts)

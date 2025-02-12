@@ -5,7 +5,7 @@ from Transcriptor import transcribe
 # %%
 dts = "jlvdoorn/atco2-asr"
 mdl = "jlvdoorn/whisper-large-v3-atco2-asr"
-spl = "train+validation"
+spl = "validation"
 wsp = "-".join(mdl.split("-")[1:3])
 
 print("Dataset: ", dts)

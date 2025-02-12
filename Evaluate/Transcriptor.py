@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import whisper
@@ -60,13 +58,11 @@ def transcribe(model, dts, spl, mdl):
             )
             df = pd.concat((df, series.to_frame().T), ignore_index=True)
 
-    df.to_pickle(
-        dts.split("/")[-1]
-        + "-"
-        + spl
-        + "-"
-        + mdl.split("/")[-1]
-        + "-"
-        + datetime.today().strftime("%Y-%m-%d--%H:%M:%S")
-        + ".pickle"
-    )
+            df.to_pickle(
+                dts.split("/")[-1]
+                + "-"
+                + spl
+                + "-"
+                + mdl.split("/")[-1]
+                + ".pickle"
+            )
