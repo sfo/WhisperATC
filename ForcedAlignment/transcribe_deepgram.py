@@ -50,13 +50,14 @@ for sample_index in (1, 2, 3, 26, 42, 100):
         source: FileSource = {"buffer": file.read()}
 
     try:
+        model = "nova-2-atc"
         deepgram = DeepgramClient(DG_KEY)
         options = PrerecordedOptions(
-            model="nova-3",
+            model=model,
             smart_format=True,
         )
         response = deepgram.listen.prerecorded.v("1").transcribe_file(source, options)
-        with open(audio_file_path.with_suffix(".dg.json"), "w") as transcript_file:
+        with open(audio_file_path.with_suffix(f".dg.{model}.json"), "w") as transcript_file:
             transcript_file.write(response.to_json(indent=4))
         print("Done.")
     except Exception as e:
