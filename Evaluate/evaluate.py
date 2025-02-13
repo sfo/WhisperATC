@@ -4,7 +4,7 @@ import pandas as pd
 from Normalizer import filterAndNormalize
 
 # %%
-dts = "jlvdoorn/atco2-asr"
+dts = "jlvdoorn/atcosim"
 mdl = "openai/whisper-large-v3"
 spl = "validation"
 wsp = "-".join(mdl.split("-")[1:])
