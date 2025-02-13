@@ -192,3 +192,4 @@ audio/
 *.wav
 *.txt
 *.srt
+secrets.env
