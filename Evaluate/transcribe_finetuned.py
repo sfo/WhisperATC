@@ -1,12 +1,11 @@
 # %%
-from model_loader import load_model
-from Transcriptor import transcribe
+from Transcriptor import WhisperATCModel, transcribe
 
 # %%
 dts = "jlvdoorn/atco2-asr"
 mdl = "jlvdoorn/whisper-large-v3-atco2-asr"
 spl = "validation"
-wsp = "-".join(mdl.split("-")[1:3])
+wsp = "-".join(mdl.split("-")[1:])
 
 print("Dataset: ", dts)
 print("Model  : ", mdl)
@@ -14,7 +13,7 @@ print("Split  : ", spl)
 print("Whisper: ", wsp)
 
 # %%
-model = load_model(wsp, mdl)
+model = WhisperATCModel(wsp)
 
 # %%
-transcribe(model, dts, spl, mdl)
+transcribe(model, dts, spl)

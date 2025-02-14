@@ -7,11 +7,6 @@ from Normalizer import filterAndNormalize
 
 
 def parse_result(result):
-    channels = json.loads(result)["results"]["channels"]
-    assert len(channels) == 1
-    alternatives = channels[0]["alternatives"]
-    assert len(alternatives) == 1
-    return alternatives[0]["transcript"]
 
 
 # %%

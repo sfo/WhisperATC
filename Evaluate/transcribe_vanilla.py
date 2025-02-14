@@ -1,6 +1,5 @@
 # %%
-import whisper
-from Transcriptor import transcribe
+from Transcriptor import Transcriptor, VanillaWhisperModel
 
 # %%
 dts = "jlvdoorn/atco2-asr"
@@ -14,7 +13,11 @@ print("Split  : ", spl)
 print("Whisper: ", wsp)
 
 # %%
-model = whisper.load_model(wsp)
+model = VanillaWhisperModel(wsp)
+transcriptor = Transcriptor(model, dts, spl)
 
 # %%
-transcribe(model, dts, spl, mdl)
+clean, prmpt = transcriptor._transcribe("validation", 0)
+
+# %%
+print(clean.raw)
