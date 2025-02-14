@@ -1,7 +1,9 @@
 # %%
+from abc import ABC, abstractmethod
 import io
 import os
 from pathlib import Path
+from typing import override
 
 import dotenv
 import pandas as pd
@@ -30,9 +32,53 @@ def request_transcript(sample, model):
         options=PrerecordedOptions(
             model=model,
             smart_format=True,
+            keyterm=[],
         ),
     )
 
+
+class Model(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        pass
+
+    @abstractmethod
+    def options(self, with_prompt: bool):
+        pass
+
+
+class Nova2ATC(Model):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @property
+    def name(self) -> str:
+        return "nova-2-atc"
+
+    @override
+    def options(self, with_prompt: bool):
+        return PrerecordedOptions(
+            model=self.name,
+            smart_format=True,
+            keywords=[],
+        )
+
+
+class Nova3(Model):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @property
+    def name(self) -> str:
+        return "nova-3"
+
+    @override
+    def options(self, with_prompt: bool):
+        return PrerecordedOptions(
+            model=self.name,
+            smart_format=True,
+            keywords=[],
+        )
 
 # %%
 dts = "jlvdoorn/atcosim"
@@ -64,6 +110,8 @@ output_file = (dts.split("/")[-1]
     + "deepgram"
     + "-"
     + mdl
+    + "-"
+    + "keyterm"
     + ".pickle"
 )
 # fmt: on
