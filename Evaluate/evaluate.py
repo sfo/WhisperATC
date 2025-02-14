@@ -4,15 +4,13 @@ import pandas as pd
 from Normalizer import filterAndNormalize
 
 # %%
-dts = "jlvdoorn/atcosim"
+dts = "jlvdoorn/atco2-asr"
 mdl = "openai/whisper-large-v3"
 spl = "validation"
-wsp = "-".join(mdl.split("-")[1:])
 
 print("Dataset: ", dts)
 print("Model  : ", mdl)
 print("Split  : ", spl)
-print("Whisper: ", wsp)
 
 # %%
 df = pd.read_pickle(

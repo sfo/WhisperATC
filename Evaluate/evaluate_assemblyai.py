@@ -1,27 +1,19 @@
 # %%
-import json
-
 import jiwer
 import pandas as pd
 from Normalizer import filterAndNormalize
 
 
 def parse_result(result):
-    channels = json.loads(result)["results"]["channels"]
-    assert len(channels) == 1
-    alternatives = channels[0]["alternatives"]
-    assert len(alternatives) == 1
-    return alternatives[0]["transcript"]
+    return result['text']
 
 
 # %%
 dts = "jlvdoorn/atco2-asr"
 spl = "validation"
-mdl = "nova-2-atc"
 
 print("Dataset: ", dts)
 print("Split  : ", spl)
-print("Model  : ", mdl)
 
 # %%
 # fmt: off
@@ -29,9 +21,7 @@ output_file = (dts.split("/")[-1]
     + "-"
     + spl
     + "-"
-    + "deepgram"
-    + "-"
-    + mdl
+    + "assemblyai"
     + ".pickle"
 )
 # fmt: on
