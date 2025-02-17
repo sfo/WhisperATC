@@ -9,7 +9,7 @@ RUN apt-get update \
 
 USER $MAMBA_USER
 
-COPY --chown=$MAMBA_USER:$MAMBA_USER env.yml /tmp/env.yml
+COPY --chown=$MAMBA_USER:$MAMBA_USER ../env.yml /tmp/env.yml
 RUN micromamba install -y -n base -f /tmp/env.yml \
  && micromamba clean --all --yes
 
