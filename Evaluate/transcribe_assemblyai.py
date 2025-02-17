@@ -2,14 +2,8 @@
 import os
 
 import dotenv
+from tqdm.auto import tqdm
 from Transcriptor import AssemblyAIModel, Transcriptor
-
-# %%
-dts = "jlvdoorn/atcosim"
-spl = "validation"
-
-print("Dataset: ", dts)
-print("Split  : ", spl)
 
 # %%
 if (secrets_file := dotenv.find_dotenv("secrets.env", usecwd=True)) == "":
@@ -19,11 +13,17 @@ else:
 
 API_KEY = os.environ["ASSEMBLYAI_API_KEY"]
 
-model = AssemblyAIModel(API_KEY)
-transcriptor = Transcriptor(model, dts, spl)
+# %%
+spl = "validation"
+for dts in tqdm(
+    (
+        "jlvdoorn/atcosim",
+        "jlvdoorn/atco2-asr",
+    ),
+    desc="iterating datasets ...",
+):
+    model = AssemblyAIModel(API_KEY)
+    transcriptor = Transcriptor(model, dts, spl)
+    transcriptor.transcribe()
 
 # %%
-clean, prmpt = transcriptor._transcribe("validation", 0)
-
-# %%
-clean.timestamps
