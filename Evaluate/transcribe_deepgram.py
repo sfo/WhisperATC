@@ -22,10 +22,15 @@ for dts in tqdm(
     ),
     desc="iterating datasets ...",
 ):
-    model = DeepgramNova2ATC(DG_KEY)
-    transcriptor = Transcriptor(model, dts, spl)
-    transcriptor.transcribe()
+    for model in tqdm(
+        (
+            DeepgramNova2ATC,
+            DeepgramNova3,
+        ),
+        desc="iterating models ...",
+        leave=False,
+    ):
+        transcriptor = Transcriptor(model(DG_KEY), dts, spl)
+        transcriptor.transcribe()
 
-    model = DeepgramNova3(DG_KEY)
-    transcriptor = Transcriptor(model, dts, spl)
-    transcriptor.transcribe()
+# %%
