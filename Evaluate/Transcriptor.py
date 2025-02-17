@@ -16,21 +16,35 @@ from tqdm import tqdm
 
 
 class Sample:
-    nato = "alpha bravo charlie delta echo foxtrot golf hotel india juliett kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu"
-    terminology = "climb climbing descend descending passing feet knots degrees direct maintain identified ILS VFR IFR contact frequency turn right left heading altitude flight level cleared squawk approach runway established report affirm negative wilco roger radio radar"
+    nato = """
+        alpha bravo charlie delta echo foxtrot golf hotel india juliett kilo lima
+        mike november oscar papa quebec romeo sierra tango uniform victor whiskey
+        xray yankee zulu
+    """
+    terminology = """
+        climb climbing descend descending passing feet knots degrees direct maintain
+        identified ILS VFR IFR contact frequency turn right left heading altitude
+        flight level cleared squawk approach runway established report affirm
+        negative wilco roger radio radar
+    """
 
     def __init__(self, record: dict) -> None:
         super().__init__()
+        # split and join to remove any whitespaces and
+        # empty strings (i.e. duplicate whitespaces)
         self._prompt = " ".join(
-            [
-                "Air Traffic Control Communications",
-                record["info"].replace("\n", " ") if "info" in record else "",
-                self.nato,
-                self.terminology,
-            ]
+            (
+                " ".join(
+                    [
+                        "Air Traffic Control Communications",
+                        record["info"] if "info" in record else "",
+                        self.nato,
+                        self.terminology,
+                    ]
+                )
+            ).split()
         )
 
-        # TODO - maybe move this to a model's preprocessing steps
         self._audio = record["audio"]
         self._audio_array = np.float32(whisper.pad_or_trim(self._audio["array"]))
 
@@ -151,7 +165,7 @@ class AssemblyAIModel(Model):
         )
         if with_prompt:
             config.set_word_boost(
-                words=sample.prompt.split(" "),
+                words=sample.prompt.split(),
                 boost=aai.WordBoost.high,
             )
         response = self._transcriber.transcribe(sample.bytes, config=config)
@@ -207,7 +221,7 @@ class DeepgramNova2ATC(DeepgramModel):
             return PrerecordedOptions(
                 model=self._variant,
                 smart_format=True,
-                keywords=sample.prompt,  # FIXME check this (e.g. delimiter, etc.)
+                keywords=sample.prompt,
             )
 
         return PrerecordedOptions(
@@ -226,9 +240,7 @@ class DeepgramNova3(DeepgramModel):
             return PrerecordedOptions(
                 model=self._variant,
                 smart_format=True,
-                keyterm=sample.prompt.split(
-                    " "
-                ),  # FIXME check this (e.g. delimiter, etc.)
+                keyterm=sample.prompt.split(),
             )
 
         return PrerecordedOptions(
