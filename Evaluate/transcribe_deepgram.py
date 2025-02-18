@@ -28,7 +28,6 @@ for dts in tqdm(
             DeepgramNova3,
         ),
         desc="iterating models ...",
-        leave=False,
     ):
         transcriptor = Transcriptor(model(DG_KEY), dts, spl)
         transcriptor.transcribe()

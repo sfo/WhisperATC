@@ -317,10 +317,9 @@ class Transcriptor:
     def transcribe(self) -> None:
         df = pd.DataFrame()
 
-        for s in tqdm(self._spl.split("+"), leave=False, desc="iterating splits ..."):
+        for s in tqdm(self._spl.split("+"), desc="iterating splits ..."):
             for i in tqdm(
                 range(len(self._dataset[s])),
-                leave=False,
                 desc="iterating samples ...",
             ):  # type: ignore
                 transcript_clean, transcript_prmpt = self._transcribe(s, i)
